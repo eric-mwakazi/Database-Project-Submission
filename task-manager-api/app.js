@@ -4,6 +4,8 @@ const cors = require('cors');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const db = require('./models');
+require('dotenv').config();
+
 
 // Middleware
 app.use(cors());
