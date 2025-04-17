@@ -1,137 +1,176 @@
 const express = require('express');
 const router = express.Router();
 const { Task } = require('../models');
+const authenticateJWT = require('../middlewares/authMiddleware'); // Import the middleware
 
 /**
  * @swagger
  * tags:
  *   name: Tasks
- *   description: Task management API
+ *   description: Task management routes
  */
 
 /**
  * @swagger
- * /tasks:
+ * /api/tasks:
  *   post:
  *     summary: Create a new task
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Task'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               completed:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Task created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Task'
  */
-router.post('/', async (req, res) => {
+router.post('/', authenticateJWT, async (req, res) => {
   try {
-    const task = await Task.create(req.body);
+    const task = await Task.create({
+      ...req.body,
+      user_id: req.user.id, // Associate task with authenticated user
+    });
     res.json(task);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
+// Get all tasks for the authenticated user
 /**
  * @swagger
- * /tasks:
+ * /api/tasks:
  *   get:
  *     summary: Get all tasks
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: List of tasks
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Task'
+ *         description: List of all tasks for the authenticated user
  */
-router.get('/', async (req, res) => {
-  const tasks = await Task.findAll();
+router.get('/', authenticateJWT, async (req, res) => {
+  const tasks = await Task.findAll({
+    where: { user_id: req.user.id }, // Only return tasks that belong to the authenticated user
+  });
   res.json(tasks);
 });
 
 /**
  * @swagger
- * /tasks/{id}:
+ * /api/tasks/{id}:
  *   get:
  *     summary: Get task by ID
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Task ID
  *     responses:
  *       200:
- *         description: Task object
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Task'
+ *         description: Task details for the authenticated user
  */
-router.get('/:id', async (req, res) => {
-  const task = await Task.findByPk(req.params.id);
+router.get('/:id', authenticateJWT, async (req, res) => {
+  const task = await Task.findOne({
+    where: { id: req.params.id, user_id: req.user.id },
+  });
+  
+  if (!task) {
+    return res.status(404).json({ message: 'Task not found' });
+  }
+
   res.json(task);
 });
 
+// Update task (only if it belongs to the authenticated user)
 /**
  * @swagger
- * /tasks/{id}:
+ * /api/tasks/{id}:
  *   put:
  *     summary: Update a task
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Task ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Task'
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               completed:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Task updated successfully
  */
-router.put('/:id', async (req, res) => {
-  await Task.update(req.body, { where: { id: req.params.id } });
-  res.json({ message: 'Task updated' });
+router.put('/:id', authenticateJWT, async (req, res) => {
+  const task = await Task.findOne({
+    where: { id: req.params.id, user_id: req.user.id },
+  });
+
+  if (!task) {
+    return res.status(404).json({ message: 'Task not found' });
+  }
+
+  await task.update(req.body);
+  res.json({ message: 'Task updated', task });
 });
 
+// Delete task (only if it belongs to the authenticated user)
 /**
  * @swagger
- * /tasks/{id}:
+ * /api/tasks/{id}:
  *   delete:
  *     summary: Delete a task
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Task ID
  *     responses:
  *       200:
  *         description: Task deleted successfully
  */
-router.delete('/:id', async (req, res) => {
-  await Task.destroy({ where: { id: req.params.id } });
+router.delete('/:id', authenticateJWT, async (req, res) => {
+  const task = await Task.findOne({
+    where: { id: req.params.id, user_id: req.user.id },
+  });
+
+  if (!task) {
+    return res.status(404).json({ message: 'Task not found' });
+  }
+
+  await task.destroy();
   res.json({ message: 'Task deleted' });
 });
 
