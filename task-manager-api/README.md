@@ -38,14 +38,32 @@ This project allows you to manage users and their tasks efficiently with full Cr
 ---
 
 ## 🛠️ Setup Instructions
+### 1. DB preparations
+* On your console once installed mysql db run
+    ```bash
+    sudo mysql
+    ```
+* Prepare db and user permisions, run:
+    ```sql
+    -- prepares a MySQL server for the project
+    CREATE DATABASE IF NOT EXISTS `task_manager-api`;
 
-### 1. Clone the Repository
+    CREATE USER IF NOT EXISTS 'task_manager-api'@'localhost' IDENTIFIED BY 'task_manager-api';
+
+    GRANT ALL PRIVILEGES ON `task_manager-api`.* TO 'task_manager-api'@'localhost';
+
+    GRANT SELECT ON `performance_schema`.* TO 'task_manager-api'@'localhost';
+
+FLUSH PRIVILEGES;
+
+    ```
+### 2. Clone the Repository
 
 ```bash
 git clone https://github.com/eric-mwakazi/Database-Project-Submission.git
 cd Database-Project-Submission/task-manager-api
 ```
-## 📂 Folder Structure
+### 📂 Folder Structure
 ```bash
 task-manager-api/
 │
@@ -58,15 +76,15 @@ task-manager-api/
 ├── app.js           # Main app entry
 └── README.md
 ```
-### 2. Install Dependencies
+### 3. Install Dependencies
 ```bash
 npm install
 ```
-### 3. Create a .env File
+### 4. Create a .env File
 ```env
-DB_NAME=task_manager
-DB_USER=root
-DB_PASSWORD=your_password
+DB_NAME=task_manager-api
+DB_USER=task_manager-api
+DB_PASSWORD=task_manager-api
 DB_HOST=localhost
 PORT=3000
 ```
