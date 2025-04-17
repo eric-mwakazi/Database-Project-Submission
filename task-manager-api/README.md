@@ -29,7 +29,7 @@ This project allows you to manage users and their tasks efficiently with full Cr
 
 ## 🧱 ERD (Entity Relationship Diagram)
 
-![ERD Screenshot](./erd.png)
+![ERD Screenshot](./images/erd.png)
 
 > This ERD represents:
 > - `User` has many `Tasks`
@@ -54,8 +54,31 @@ This project allows you to manage users and their tasks efficiently with full Cr
 
     GRANT SELECT ON `performance_schema`.* TO 'task_manager-api'@'localhost';
 
-FLUSH PRIVILEGES;
+    FLUSH PRIVILEGES;
+    ```
+    * The db_scheme.sql
+    ```sql
+    -- Create a database
+    CREATE DATABASE `task_manager-api`;
 
+    USE `task_manager-api`;
+
+    -- Users Table
+    CREATE TABLE users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL
+    );
+
+    -- Tasks Table
+    CREATE TABLE tasks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        completed BOOLEAN DEFAULT FALSE,
+        user_id INT,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    );
     ```
 ### 2. Clone the Repository
 
