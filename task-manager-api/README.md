@@ -94,7 +94,8 @@ task-manager-api/
 ├── migrations/      # DB table migrations
 ├── models/          # Sequelize models
 ├── routes/          # Express routes
-├── seeders/         # Sample seed data
+├── controllers/
+├── middlewares/
 ├── .env             # Environment variables
 ├── app.js           # Main app entry
 └── README.md
@@ -114,19 +115,11 @@ PORT=3000
 ### 4. Setup the Database
 * a) Create MySQL Database
 ```sql
-CREATE DATABASE task_manager;
-```
-* b) Run Migrations
-```bash
-npx sequelize-cli db:migrate
-```
-* (Optional) Seed Sample Data
-```bash
-npx sequelize-cli db:seed:all
+CREATE DATABASE task_manager-api;
 ```
 * 5. Run the Project
 ```bash
-npm start
+npm run dev
 ```
 The server will start on http://localhost:3000.
 

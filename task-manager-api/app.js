@@ -9,6 +9,11 @@ const db = require('./models');
 app.use(cors());
 app.use(express.json());
 
+// Redirect the home page to /api-docs
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
+
 // Routes
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks'); // Import task routes
@@ -47,7 +52,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Sync database with model changes (without logging SQL queries)
 db.sequelize.sync({ alter: true, logging: false }).then(() => {
-  console.log('✅Database synced with model changes');
+  console.log('Database synced with model changes');
 });
 
 // Start server
